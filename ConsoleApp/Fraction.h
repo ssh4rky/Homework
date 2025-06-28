@@ -1,20 +1,24 @@
-#pragma once
-class Fraction
-{
+﻿#pragma once
+#include <iostream>
+
+// Class initialization
+
+class Fraction {
 private:
-	int num;
-	int denom;
-	int matrix[3][5];
+    int numerator;
+    int denominator;
+
+    void reduce(); // the function to maintain data
+
 public:
-	void SetNum();
-	void SetDenom();
+    Fraction(int num = 0, int denom = 1);
 
-	void GetNum() {
-		
-	};
+    void input();        // Input from user
+    void print() const;  // Print the fraction
 
-	void Add();
-	void Subtract();
-	void Multiply();
-	void Divide();
+    // For operators we need the classtype-based expressions(initialize values with each operator)
+    Fraction operator+(const Fraction& other) const;
+    Fraction operator-(const Fraction& other) const;
+    Fraction operator*(const Fraction& other) const;
+    Fraction operator/(const Fraction& other) const;
 };
