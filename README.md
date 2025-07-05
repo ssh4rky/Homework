@@ -26,7 +26,7 @@ From C++ to Git mastery — here you’ll find my code, my effort, and maybe eve
 | Folder/File     | Description                                 |
 |-----------------|---------------------------------------------|
 | ConsoleApp/   | Console-based C++ projects & experiments     |
-| readme.md     | You’re reading it right now 😉              |
+| README.md     | You’re reading it right now 😉              |
 
 ---
 
