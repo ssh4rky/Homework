@@ -2,16 +2,13 @@
 
 using namespace std;
 
-class Date {
-protected:
-	// Date inizialization
+struct Date {
 	int day;
 	int month;
 	int year;
 
 	int getDaysInMonth(int m, int y) {
 		if (m == 2) {
-			// Leap year
 			if ((y % 4 == 0 && y % 100 != 0) || (y % 400 == 0))
 				return 29;
 			else
@@ -22,40 +19,32 @@ protected:
 		else
 			return 31;
 	}
-public:
+
 	Date() {
 		static bool seeded = false;
 		if (!seeded) {
-			// function to delay the srand signation
 			srand(static_cast<unsigned int>(time(0)));
 			seeded = true;
 		}
-
-		// Generation
-		month = rand() % 12 + 1; // 12 months
-		year = rand() % (2025 - 1900 + 1) + 1900; // from 1900 to 2025
-
+		month = rand() % 12 + 1;
+		year = rand() % (2025 - 1900 + 1) + 1900;
 		int maxDay = getDaysInMonth(month, year);
-		day = rand() % maxDay + 1;     // 1–28/29/30/31
+		day = rand() % maxDay + 1;
 	}
 
-	// Getter
+	Date(const Date& other) {
+		day = other.day;
+		month = other.month;
+		year = other.year;
+	}
 
 	void showDate() {
 		cout << "Generated date: " << day << "." << month << "." << year << endl;
 	}
-
-	// Copy Constructor(Parent)
-	Date(const Date& other) {
-		this->day = other.day;
-		this->month = other.month;
-		this->year = other.year;
-	}
 };
 
-class Person : public Date{
+class Person : public Date {
 private:
-	// ID
 	char* identification;
 
 	char* generateRandomID() {
@@ -64,18 +53,15 @@ private:
 		sprintf_s(id, 5, "%04d", number);
 		return id;
 	}
-	// Name
+
 	char* name;
 	char* surname;
 	char* transliteration;
-	// Birthdate
-	// Parental class Date
-	// Count for amount of objects
+
 	static int count;
 public:
-	Person() : Person(generateRandomID(), "NoName", "NoSurname", "N/A") {};
+	Person() : Person(generateRandomID(), "NoName", "NoSurname", "N/A") {}
 
-	// Main constructor
 	Person(const char* identification, const char* name, const char* surname, const char* transliteration) {
 		this->identification = new char[strlen(identification) + 1];
 		this->name = new char[strlen(name) + 1];
@@ -90,7 +76,6 @@ public:
 		count++;
 	}
 
-	// Copy constructor(Child)
 	Person(const Person& other) : Date(other) {
 		identification = generateRandomID();
 		name = new char[strlen(other.name) + 1];
@@ -104,7 +89,6 @@ public:
 		count++;
 	}
 
-	// Destructor
 	~Person() {
 		delete[] identification;
 		delete[] name;
@@ -113,7 +97,6 @@ public:
 		count--;
 	}
 
-	// Setters
 	Person& SetName(const char* newName = "Ivan") {
 		delete[] name;
 		name = new char[strlen(newName) + 1];
@@ -135,7 +118,6 @@ public:
 		return *this;
 	}
 
-	// Getter
 	void GetInfo() {
 		cout << "ID: " << identification << '\n';
 		cout << "Name: " << name << '\n';
@@ -145,8 +127,6 @@ public:
 		cout << endl;
 	}
 
-	// Static
-
 	static int GetCount() {
 		return count;
 	}
@@ -154,14 +134,13 @@ public:
 
 int Person::count = 0;
 
-int main()
-{
+int main() {
 	Person p1;
 	p1.SetName("Igor").SetSurname("Shevchenko").SetTransliteration("Oleksandrovych");
 
-	Person p2(p1); // copy
-	Person p3(p2); // copy of a copy
-	Person p4(p3); // copy of a copy of a copy
+	Person p2(p1);
+	Person p3(p2);
+	Person p4(p3);
 
 	cout << "Original person: ";
 	p1.GetInfo();
