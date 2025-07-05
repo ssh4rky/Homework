@@ -1,151 +1,180 @@
 ﻿#include <iostream>
-#include <Windows.h>
 
 using namespace std;
 
-// Порушення інкапсуляції
-// int nextId = 1;
+class Date {
+protected:
+	// Date inizialization
+	int day;
+	int month;
+	int year;
 
-class Student {
-private:
-    char* name;
-    char* groupName;
-    int age;
-
-    int id; // унікальний ідентифікатор студента, для кожного об'єкта пвинен мати інше значення
-    static int nextId; // статичне поле, яке належить класу і спільне для всіх об'єктів
+	int getDaysInMonth(int m, int y) {
+		if (m == 2) {
+			// Leap year
+			if ((y % 4 == 0 && y % 100 != 0) || (y % 400 == 0))
+				return 29;
+			else
+				return 28;
+		}
+		else if (m == 4 || m == 6 || m == 9 || m == 11)
+			return 30;
+		else
+			return 31;
+	}
 public:
-    Student() : Student(nullptr, nullptr, 0) {}
+	Date() {
+		static bool seeded = false;
+		if (!seeded) {
+			// function to delay the srand signation
+			srand(static_cast<unsigned int>(time(0)));
+			seeded = true;
+		}
 
-    Student(const char* name, const char* group, int age) : age(age) {
-        //int newId = rand();
-        //// перевірка чи був вже такий id;
-        //this->id = newId;
+		// Generation
+		month = rand() % 12 + 1; // 12 months
+		year = rand() % (2025 - 1900 + 1) + 1900; // from 1900 to 2025
 
-        this->id = nextId;
-        nextId++;
+		int maxDay = getDaysInMonth(month, year);
+		day = rand() % maxDay + 1;     // 1–28/29/30/31
+	}
 
-        cout << "Виклик конструктора з параметрами\n";
+	// Getter
 
-        if (name == nullptr) this->name = nullptr;
-        else {
-            this->name = new char[strlen(name) + 1];
-            strcpy_s(this->name, strlen(name) + 1, name);
-        }
+	void showDate() {
+		cout << "Generated date: " << day << "." << month << "." << year << endl;
+	}
 
-        if (group == nullptr) groupName = nullptr;
-        else {
-            groupName = new char[strlen(group) + 1];
-            strcpy_s(groupName, strlen(group) + 1, group);
-        }
-    }
-
-    ~Student() {
-        // if(name != nullptr) - варіант без перетворення типу
-        if (name) delete[] name;
-        if (groupName) delete[] groupName;
-    }
-
-    Student& SetName(const char* name) {
-        // Очищаємо старе ім'я
-        if (this->name) delete[] this->name;
-        // Якщо нове ім'я - nullptr зберігаємо nullptr
-        if (name == nullptr) {
-            this->name = nullptr;
-        }
-        // зберігаємо нове ім'я
-        else {
-            this->name = new char[strlen(name) + 1];
-            strcpy_s(this->name, strlen(name) + 1, name);
-        }
-
-        return *this;
-    }
-    Student& SetGroupName(const char* groupName) {
-        if (this->groupName) delete[] this->groupName;
-        if (groupName == nullptr) {
-            this->groupName = nullptr;
-        }
-        else {
-            this->groupName = new char[strlen(groupName) + 1];
-            strcpy_s(this->groupName, strlen(groupName) + 1, groupName);
-        }
-        return *this;
-    }
-    Student& SetAge(int age) {
-        this->age = age;
-        return *this;
-    }
-
-    // Статичні методи - належать класу, а не об'єкту, використовуються для роботи зі статичними полями
-    // не приймають параметр this
-    static int GetNextId() {
-        //this->age;
-        return nextId;
-    }
-
-    void Print();
+	// Copy Constructor(Parent)
+	Date(const Date& other) {
+		this->day = other.day;
+		this->month = other.month;
+		this->year = other.year;
+	}
 };
 
-// Ініціалізація статичного поля
-int Student::nextId = 1;
+class Person : public Date{
+private:
+	// ID
+	char* identification;
 
-// Покажчик this - це неявний параметр, який передається в методи об'єкту при виклику та зберігає адресу самого об'єкту.
-void Student::Print(/*const Student* this*/)
-{
-    //Student student("Temp", "test", -10);
-    // this = &student; - this - константний покажчик, не можна переназначити
+	char* generateRandomID() {
+		int number = rand() % 10000;
+		char* id = new char[5];
+		sprintf_s(id, 5, "%04d", number);
+		return id;
+	}
+	// Name
+	char* name;
+	char* surname;
+	char* transliteration;
+	// Birthdate
+	// Parental class Date
+	// Count for amount of objects
+	static int count;
+public:
+	Person() : Person(generateRandomID(), "NoName", "NoSurname", "N/A") {};
 
-    cout << "Ім'я: " << name << '\n';
-    cout << "Група: " << groupName << '\n';
-    cout << "Вік: " << age << '\n';
-    cout << "ID: " << id << '\n';
+	// Main constructor
+	Person(const char* identification, const char* name, const char* surname, const char* transliteration) {
+		this->identification = new char[strlen(identification) + 1];
+		this->name = new char[strlen(name) + 1];
+		this->surname = new char[strlen(surname) + 1];
+		this->transliteration = new char[strlen(transliteration) + 1];
 
-    cout << "Адреса об'єкту: " << this << '\n';
-}
+		strcpy_s(this->identification, strlen(identification) + 1, identification);
+		strcpy_s(this->name, strlen(name) + 1, name);
+		strcpy_s(this->surname, strlen(surname) + 1, surname);
+		strcpy_s(this->transliteration, strlen(transliteration) + 1, transliteration);
+
+		count++;
+	}
+
+	// Copy constructor(Child)
+	Person(const Person& other) : Date(other) {
+		identification = generateRandomID();
+		name = new char[strlen(other.name) + 1];
+		surname = new char[strlen(other.surname) + 1];
+		transliteration = new char[strlen(other.transliteration) + 1];
+
+		strcpy_s(name, strlen(other.name) + 1, other.name);
+		strcpy_s(surname, strlen(other.surname) + 1, other.surname);
+		strcpy_s(transliteration, strlen(other.transliteration) + 1, other.transliteration);
+
+		count++;
+	}
+
+	// Destructor
+	~Person() {
+		delete[] identification;
+		delete[] name;
+		delete[] surname;
+		delete[] transliteration;
+		count--;
+	}
+
+	// Setters
+	Person& SetName(const char* newName = "Ivan") {
+		delete[] name;
+		name = new char[strlen(newName) + 1];
+		strcpy_s(name, strlen(newName) + 1, newName);
+		return *this;
+	}
+
+	Person& SetSurname(const char* newSurname = "Petrov") {
+		delete[] surname;
+		surname = new char[strlen(newSurname) + 1];
+		strcpy_s(surname, strlen(newSurname) + 1, newSurname);
+		return *this;
+	}
+
+	Person& SetTransliteration(const char* newTrans = "Ivan Petrov") {
+		delete[] transliteration;
+		transliteration = new char[strlen(newTrans) + 1];
+		strcpy_s(transliteration, strlen(newTrans) + 1, newTrans);
+		return *this;
+	}
+
+	// Getter
+	void GetInfo() {
+		cout << "ID: " << identification << '\n';
+		cout << "Name: " << name << '\n';
+		cout << "Surname: " << surname << '\n';
+		cout << "Transliteration: " << transliteration << '\n';
+		showDate();
+		cout << endl;
+	}
+
+	// Static
+
+	static int GetCount() {
+		return count;
+	}
+};
+
+int Person::count = 0;
 
 int main()
 {
-    SetConsoleOutputCP(1251);
+	Person p1;
+	p1.SetName("Igor").SetSurname("Shevchenko").SetTransliteration("Oleksandrovych");
 
-    Student student;
+	Person p2(p1); // copy
+	Person p3(p2); // copy of a copy
+	Person p4(p3); // copy of a copy of a copy
 
-    student.SetAge(15).SetName("Сергій").SetGroupName("П78");
+	cout << "Original person: ";
+	p1.GetInfo();
 
+	cout << "\nCopied person: ";
+	p2.GetInfo();
 
+	cout << "\nCopied to copy person: ";
+	p3.GetInfo();
 
-    /* student.Print();
+	cout << "\nCopied to copy which is copied person: ";
+	p4.GetInfo();
 
-     student.SetAge(15);
-     student.SetName("Сергій");
-     student.SetGroupName("П78");*/
-
-    Student st("Антон", "П565", 16);
-
-    cout << Student::GetNextId() << '\n';
-
-    // Через ім'я класу - рекомандовний варіант
-    //cout << &(Student::nextId) << '\n';
-
-    // Через ім'я об'єкту не рекомендується
-    /*cout << &(student.nextId) << '\n';
-    cout << &(st.nextId) << '\n';*/
-
-    //Student::nextId = 1;
-
-    // nextId = 1; 
-
-    Student st2("Антон2", "П56", 17);
-
-    // Print(&st); - неявно
-    cout << &st << '\n';
-    st.Print();
-    // Print(&st2); - неявно
-    st2.Print();
-
-    cout << main << '\n';
-
-    //cout << st.Print << '\n';
-    //cout << st2.Print << '\n';
+	cout << "\nTotal persons created: " << Person::GetCount() << endl;
 }
 
