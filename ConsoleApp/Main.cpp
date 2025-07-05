@@ -32,20 +32,21 @@ struct Date {
 		day = rand() % maxDay + 1;
 	}
 
-	Date(const Date& other) {
-		day = other.day;
-		month = other.month;
-		year = other.year;
-	}
-
-	void showDate() {
+	void showDate() const {
 		cout << "Generated date: " << day << "." << month << "." << year << endl;
 	}
 };
 
-class Person : public Date {
+class Person {
 private:
 	char* identification;
+	char* name;
+	char* surname;
+	char* transliteration;
+
+	Date birthDate;
+
+	static int count;
 
 	char* generateRandomID() {
 		int number = rand() % 10000;
@@ -54,11 +55,6 @@ private:
 		return id;
 	}
 
-	char* name;
-	char* surname;
-	char* transliteration;
-
-	static int count;
 public:
 	Person() : Person(generateRandomID(), "NoName", "NoSurname", "N/A") {}
 
@@ -76,7 +72,7 @@ public:
 		count++;
 	}
 
-	Person(const Person& other) : Date(other) {
+	Person(const Person& other) {
 		identification = generateRandomID();
 		name = new char[strlen(other.name) + 1];
 		surname = new char[strlen(other.surname) + 1];
@@ -85,6 +81,8 @@ public:
 		strcpy_s(name, strlen(other.name) + 1, other.name);
 		strcpy_s(surname, strlen(other.surname) + 1, other.surname);
 		strcpy_s(transliteration, strlen(other.transliteration) + 1, other.transliteration);
+
+		birthDate = other.birthDate;
 
 		count++;
 	}
@@ -118,12 +116,12 @@ public:
 		return *this;
 	}
 
-	void GetInfo() {
+	void GetInfo() const {
 		cout << "ID: " << identification << '\n';
 		cout << "Name: " << name << '\n';
 		cout << "Surname: " << surname << '\n';
 		cout << "Transliteration: " << transliteration << '\n';
-		showDate();
+		birthDate.showDate();
 		cout << endl;
 	}
 
@@ -156,4 +154,3 @@ int main() {
 
 	cout << "\nTotal persons created: " << Person::GetCount() << endl;
 }
-
