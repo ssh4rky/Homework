@@ -2,192 +2,99 @@
 #include <cstring>
 #include <Windows.h>
 
-// Константні члени класу
-// Explicit конструктор
-
 using namespace std;
 
-//class User {
-//private:
-//    char* name;
-//    int age;
-//    static int userCount;
-//public:
-//    User(const char* name) {
-//        this->name = new char[strlen(name) + 1];
-//        strcpy_s(this->name, strlen(name) + 1, name);
-//        this->age = 10;
-//        userCount++;
-//    }
-//    User(const User& other) {
-//        // Поверхневе копіювання
-//        //this->name = other.name;
-//        
-//        this->name = new char[strlen(other.name) + 1];
-//        strcpy_s(this->name, strlen(other.name) + 1, other.name);
-//    }
-//    ~User() {
-//        delete[] name;
-//    }
-//    static int GetUserCount() {
-//        //this->age;
-//        return userCount;
-//    }
-//    int GetAge() {
-//        return this->age;
-//    }
-//};
-//
-//int User::userCount = 0;
-
-enum Breed {
-    Sphynx, MainCoon, Siamese
-};
-
-class Cat {
+class Book {
 private:
+    char* autor;
     char* name;
-    int age;
-    const Breed breed = MainCoon;
-    static int count;
-    mutable int test;
+    char* center;
+    int year;
+    int pages;
+
 public:
-    Cat(int breed) : Cat(nullptr, -1, (Breed)breed) {}
-    Cat(Breed breed) : Cat(nullptr, -1, breed) {}
-    Cat(const char* name, int age, Breed breed) : age(age), breed(breed) {
-        if (name)
-        {
-            this->name = new char[strlen(name) + 1];
-            strcpy_s(this->name, strlen(name) + 1, name);
-        }
-        else
-        {
-            this->name = nullptr;
-        }
+    explicit Book(const char* autor = "", const char* name = "", const char* center = "", int year = 0, int pages = 0) {
+        this->autor = new char[strlen(autor) + 1];
+        strcpy_s(this->autor, strlen(autor) + 1, autor);
 
-        test = 10;
+        this->name = new char[strlen(name) + 1];
+        strcpy_s(this->name, strlen(name) + 1, name);
 
-        count++;
-    }
-    ~Cat() {
-        if (this->name) delete[] this->name;
+        this->center = new char[strlen(center) + 1];
+        strcpy_s(this->center, strlen(center) + 1, center);
+
+        this->year = year;
+        this->pages = pages;
     }
 
-    static int GetCount() {
-        return count;
+    Book(const Book& other) {
+        autor = new char[strlen(other.autor) + 1];
+        strcpy_s(autor, strlen(other.autor) + 1, other.autor);
+
+        name = new char[strlen(other.name) + 1];
+        strcpy_s(name, strlen(other.name) + 1, other.name);
+
+        center = new char[strlen(other.center) + 1];
+        strcpy_s(center, strlen(other.center) + 1, other.center);
+
+        year = other.year;
+        pages = other.pages;
     }
 
-    char* GetName() const {
-        return name;
-    }
-    int GetAge() const {
-        return age;
-    }
-    Breed GetBreed() const {
-        return breed;
+    ~Book() {
+        delete[] autor;
+        delete[] name;
+        delete[] center;
     }
 
-    // Константний метод
-    // ВСІ МЕТОДИ які не змінюють ВНУТРІШНІЙ СТАН ОБ'ЄКТА повинні бути оголошені як КОНСТАНТНІ
-    void Print() const {
-        /*this = new Cat(Sphynx);
-        this->age = 10;*/
-        //count++;
-        this->test++;
-
-        cout << test << '\n';
-
-        cout << "Ім'я: " << name << '\n' << "Вік: " << age << '\n';
-        switch (breed) {
-        case Sphynx:
-            cout << "Порода: сфінкс\n"; break;
-        case MainCoon:
-            cout << "Порода: мейн кун\n"; break;
-        case Siamese:
-            cout << "Порода: сіамський кіт\n"; break;
-        }
+    void GetInfo() const {
+        cout << (const char*)u8"Ім'я: " << name << "\n";
+        cout << (const char*)u8"Автор: " << autor << "\n";
+        cout << (const char*)u8"Видавництво: " << center << "\n";
+        cout << (const char*)u8"Рік: " << year << "\n";
+        cout << (const char*)u8"Сторінок: " << pages << "\n\n";
     }
 
-    // const Cat* this; - константний покажчик, не можна переназначити на інший об'єкт, але міняти сам об'єкт - можна
-    // const Cat* const this; - константний покажчик на константу - не можна переназначити, не можна змінити об'єкт
-    Cat& SetAge(int age) {
-        //this = new Cat(Sphynx);
-        this->age = age;
-        return *this;
-    }
-
-    Cat& SetName(const char* name) {
-        if (name)
-        {
-            this->name = new char[strlen(name) + 1];
-            strcpy_s(this->name, strlen(name) + 1, name);
-        }
-        else
-        {
-            this->name = nullptr;
-        }
-        return *this;
-    }
-
-    /*Cat& SetBreed(Breed breed) {
-        this->breed = breed;
-
-        return *this;
-    }*/
+    const char* GetAutor() const { return autor; }
+    const char* GetCenter() const { return center; }
+    int GetYear() const { return year; }
 };
 
-int Cat::count = 0;
-
-void EnterCat(Cat& cat) {
-    cout << "Введіть ім'я кота: ";
-    char* buffer = new char[50];
-    cin.getline(buffer, 50);
-    cat.SetName(buffer);
-    cout << "Ввеідть вік: ";
-    int temp;
-    cin >> temp;
-    cat.SetAge(temp);
+void PrintBooksByAuthor(Book books[], int size, const char* author) {
+    cout << (const char*)u8"\nКниги автора \"" << author << "\":\n";
+    for (int i = 0; i < size; ++i)
+        if (strcmp(books[i].GetAutor(), author) == 0)
+            books[i].GetInfo();
 }
 
-int main()
-{
-    SetConsoleOutputCP(1251);
+void PrintBooksByCenter(Book books[], int size, const char* center) {
+    cout << (const char*)u8"\nКниги видавництва \"" << center << "\":\n";
+    for (int i = 0; i < size; ++i)
+        if (strcmp(books[i].GetCenter(), center) == 0)
+            books[i].GetInfo();
+}
 
-    Cat cat(2);
+void PrintBooksAfterYear(Book books[], int size, int year) {
+    cout << (const char*)u8"\nКниги, видані після " << year << " року:\n";
+    for (int i = 0; i < size; ++i)
+        if (books[i].GetYear() > year)
+            books[i].GetInfo();
+}
 
-    cout << cat.GetBreed() << '\n';
+int main() {
+    SetConsoleOutputCP(65001);
+    SetConsoleCP(65001);
 
-    EnterCat(cat);
+    const int size = 3;
+    Book books[size] = {
+        Book((const char*)u8"Кобилянська", (const char*)u8"Царівна", (const char*)u8"Літопис", 1895, 240),
+        Book((const char*)u8"Франко", (const char*)u8"Захар Беркут", (const char*)u8"Львівська друкарня", 1883, 280),
+        Book((const char*)u8"Кобилянська", (const char*)u8"В неділю рано зілля копала", (const char*)u8"Літопис", 1909, 190)
+    };
 
-    cat.Print();
+    PrintBooksByAuthor(books, size, (const char*)u8"Кобилянська");
+    PrintBooksByCenter(books, size, (const char*)u8"Літопис");
+    PrintBooksAfterYear(books, size, 1900);
 
-    //User u;
-
-    //User u1("name");
-    //User u2(u1);
-
-    //Cat cat2(MainCoon);
-
-    //Cat cat4{ "Ім'я", 10, Sphynx };
-
-    //Cat cat1("name", 10, Sphynx);
-    //cat1.Print();
-
-    //// Константний об'єкт - внутрійшній стан не повинен змінюватись
-    //const Cat catC("Моїсей", 5, MainCoon);
-
-    //catC.Print();
-
-
-
-    //cout << User::GetUserCount() << '\n';
-
-    //User u4;
-
-    //User u5(u4);
-
-    //cout << User::GetUserCount() << '\n';
-
-    //cout << u4.GetAge() << '\n';
-    ////cout << User::GetAge() << '\n';
+    return 0;
 }
