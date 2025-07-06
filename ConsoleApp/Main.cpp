@@ -1,156 +1,193 @@
 ﻿#include <iostream>
+#include <cstring>
+#include <Windows.h>
+
+// Константні члени класу
+// Explicit конструктор
 
 using namespace std;
 
-struct Date {
-	int day;
-	int month;
-	int year;
+//class User {
+//private:
+//    char* name;
+//    int age;
+//    static int userCount;
+//public:
+//    User(const char* name) {
+//        this->name = new char[strlen(name) + 1];
+//        strcpy_s(this->name, strlen(name) + 1, name);
+//        this->age = 10;
+//        userCount++;
+//    }
+//    User(const User& other) {
+//        // Поверхневе копіювання
+//        //this->name = other.name;
+//        
+//        this->name = new char[strlen(other.name) + 1];
+//        strcpy_s(this->name, strlen(other.name) + 1, other.name);
+//    }
+//    ~User() {
+//        delete[] name;
+//    }
+//    static int GetUserCount() {
+//        //this->age;
+//        return userCount;
+//    }
+//    int GetAge() {
+//        return this->age;
+//    }
+//};
+//
+//int User::userCount = 0;
 
-	int getDaysInMonth(int m, int y) {
-		if (m == 2) {
-			if ((y % 4 == 0 && y % 100 != 0) || (y % 400 == 0))
-				return 29;
-			else
-				return 28;
-		}
-		else if (m == 4 || m == 6 || m == 9 || m == 11)
-			return 30;
-		else
-			return 31;
-	}
-
-	Date() {
-		static bool seeded = false;
-		if (!seeded) {
-			srand(static_cast<unsigned int>(time(0)));
-			seeded = true;
-		}
-		month = rand() % 12 + 1;
-		year = rand() % (2025 - 1900 + 1) + 1900;
-		int maxDay = getDaysInMonth(month, year);
-		day = rand() % maxDay + 1;
-	}
-
-	void showDate() const {
-		cout << "Generated date: " << day << "." << month << "." << year << endl;
-	}
+enum Breed {
+    Sphynx, MainCoon, Siamese
 };
 
-class Person {
+class Cat {
 private:
-	char* identification;
-	char* name;
-	char* surname;
-	char* transliteration;
-
-	Date birthDate;
-
-	static int count;
-
-	char* generateRandomID() {
-		int number = rand() % 10000;
-		char* id = new char[5];
-		sprintf_s(id, 5, "%04d", number);
-		return id;
-	}
-
+    char* name;
+    int age;
+    const Breed breed = MainCoon;
+    static int count;
+    mutable int test;
 public:
-	Person() : Person(generateRandomID(), "NoName", "NoSurname", "N/A") {}
+    Cat(int breed) : Cat(nullptr, -1, (Breed)breed) {}
+    Cat(Breed breed) : Cat(nullptr, -1, breed) {}
+    Cat(const char* name, int age, Breed breed) : age(age), breed(breed) {
+        if (name)
+        {
+            this->name = new char[strlen(name) + 1];
+            strcpy_s(this->name, strlen(name) + 1, name);
+        }
+        else
+        {
+            this->name = nullptr;
+        }
 
-	Person(const char* identification, const char* name, const char* surname, const char* transliteration) {
-		this->identification = new char[strlen(identification) + 1];
-		this->name = new char[strlen(name) + 1];
-		this->surname = new char[strlen(surname) + 1];
-		this->transliteration = new char[strlen(transliteration) + 1];
+        test = 10;
 
-		strcpy_s(this->identification, strlen(identification) + 1, identification);
-		strcpy_s(this->name, strlen(name) + 1, name);
-		strcpy_s(this->surname, strlen(surname) + 1, surname);
-		strcpy_s(this->transliteration, strlen(transliteration) + 1, transliteration);
+        count++;
+    }
+    ~Cat() {
+        if (this->name) delete[] this->name;
+    }
 
-		count++;
-	}
+    static int GetCount() {
+        return count;
+    }
 
-	Person(const Person& other) {
-		identification = generateRandomID();
-		name = new char[strlen(other.name) + 1];
-		surname = new char[strlen(other.surname) + 1];
-		transliteration = new char[strlen(other.transliteration) + 1];
+    char* GetName() const {
+        return name;
+    }
+    int GetAge() const {
+        return age;
+    }
+    Breed GetBreed() const {
+        return breed;
+    }
 
-		strcpy_s(name, strlen(other.name) + 1, other.name);
-		strcpy_s(surname, strlen(other.surname) + 1, other.surname);
-		strcpy_s(transliteration, strlen(other.transliteration) + 1, other.transliteration);
+    // Константний метод
+    // ВСІ МЕТОДИ які не змінюють ВНУТРІШНІЙ СТАН ОБ'ЄКТА повинні бути оголошені як КОНСТАНТНІ
+    void Print() const {
+        /*this = new Cat(Sphynx);
+        this->age = 10;*/
+        //count++;
+        this->test++;
 
-		birthDate = other.birthDate;
+        cout << test << '\n';
 
-		count++;
-	}
+        cout << "Ім'я: " << name << '\n' << "Вік: " << age << '\n';
+        switch (breed) {
+        case Sphynx:
+            cout << "Порода: сфінкс\n"; break;
+        case MainCoon:
+            cout << "Порода: мейн кун\n"; break;
+        case Siamese:
+            cout << "Порода: сіамський кіт\n"; break;
+        }
+    }
 
-	~Person() {
-		delete[] identification;
-		delete[] name;
-		delete[] surname;
-		delete[] transliteration;
-		count--;
-	}
+    // const Cat* this; - константний покажчик, не можна переназначити на інший об'єкт, але міняти сам об'єкт - можна
+    // const Cat* const this; - константний покажчик на константу - не можна переназначити, не можна змінити об'єкт
+    Cat& SetAge(int age) {
+        //this = new Cat(Sphynx);
+        this->age = age;
+        return *this;
+    }
 
-	Person& SetName(const char* newName = "Ivan") {
-		delete[] name;
-		name = new char[strlen(newName) + 1];
-		strcpy_s(name, strlen(newName) + 1, newName);
-		return *this;
-	}
+    Cat& SetName(const char* name) {
+        if (name)
+        {
+            this->name = new char[strlen(name) + 1];
+            strcpy_s(this->name, strlen(name) + 1, name);
+        }
+        else
+        {
+            this->name = nullptr;
+        }
+        return *this;
+    }
 
-	Person& SetSurname(const char* newSurname = "Petrov") {
-		delete[] surname;
-		surname = new char[strlen(newSurname) + 1];
-		strcpy_s(surname, strlen(newSurname) + 1, newSurname);
-		return *this;
-	}
+    /*Cat& SetBreed(Breed breed) {
+        this->breed = breed;
 
-	Person& SetTransliteration(const char* newTrans = "Ivan Petrov") {
-		delete[] transliteration;
-		transliteration = new char[strlen(newTrans) + 1];
-		strcpy_s(transliteration, strlen(newTrans) + 1, newTrans);
-		return *this;
-	}
-
-	void GetInfo() const {
-		cout << "ID: " << identification << '\n';
-		cout << "Name: " << name << '\n';
-		cout << "Surname: " << surname << '\n';
-		cout << "Transliteration: " << transliteration << '\n';
-		birthDate.showDate();
-		cout << endl;
-	}
-
-	static int GetCount() {
-		return count;
-	}
+        return *this;
+    }*/
 };
 
-int Person::count = 0;
+int Cat::count = 0;
 
-int main() {
-	Person p1;
-	p1.SetName("Igor").SetSurname("Shevchenko").SetTransliteration("Oleksandrovych");
+void EnterCat(Cat& cat) {
+    cout << "Введіть ім'я кота: ";
+    char* buffer = new char[50];
+    cin.getline(buffer, 50);
+    cat.SetName(buffer);
+    cout << "Ввеідть вік: ";
+    int temp;
+    cin >> temp;
+    cat.SetAge(temp);
+}
 
-	Person p2(p1);
-	Person p3(p2);
-	Person p4(p3);
+int main()
+{
+    SetConsoleOutputCP(1251);
 
-	cout << "Original person: ";
-	p1.GetInfo();
+    Cat cat(2);
 
-	cout << "\nCopied person: ";
-	p2.GetInfo();
+    cout << cat.GetBreed() << '\n';
 
-	cout << "\nCopied to copy person: ";
-	p3.GetInfo();
+    EnterCat(cat);
 
-	cout << "\nCopied to copy which is copied person: ";
-	p4.GetInfo();
+    cat.Print();
 
-	cout << "\nTotal persons created: " << Person::GetCount() << endl;
+    //User u;
+
+    //User u1("name");
+    //User u2(u1);
+
+    //Cat cat2(MainCoon);
+
+    //Cat cat4{ "Ім'я", 10, Sphynx };
+
+    //Cat cat1("name", 10, Sphynx);
+    //cat1.Print();
+
+    //// Константний об'єкт - внутрійшній стан не повинен змінюватись
+    //const Cat catC("Моїсей", 5, MainCoon);
+
+    //catC.Print();
+
+
+
+    //cout << User::GetUserCount() << '\n';
+
+    //User u4;
+
+    //User u5(u4);
+
+    //cout << User::GetUserCount() << '\n';
+
+    //cout << u4.GetAge() << '\n';
+    ////cout << User::GetAge() << '\n';
 }
