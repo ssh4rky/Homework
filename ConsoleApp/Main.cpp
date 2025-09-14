@@ -1,100 +1,129 @@
-﻿#include <iostream>
-#include <cstring>
-#include <Windows.h>
+#include <iostream>
 
 using namespace std;
 
-class Book {
+class String {
 private:
-    char* autor;
-    char* name;
-    char* center;
-    int year;
-    int pages;
-
+    char* mystr;
 public:
-    explicit Book(const char* autor = "", const char* name = "", const char* center = "", int year = 0, int pages = 0) {
-        this->autor = new char[strlen(autor) + 1];
-        strcpy_s(this->autor, strlen(autor) + 1, autor);
+    String() : mystr(nullptr) {}
 
-        this->name = new char[strlen(name) + 1];
-        strcpy_s(this->name, strlen(name) + 1, name);
-
-        this->center = new char[strlen(center) + 1];
-        strcpy_s(this->center, strlen(center) + 1, center);
-
-        this->year = year;
-        this->pages = pages;
+    String(const char* str) {
+        if (str) {
+            mystr = new char[strlen(str) + 1];
+            strcpy_s(mystr, strlen(str) + 1, str);
+        }
+        else {
+            mystr = nullptr;
+        }
     }
 
-    Book(const Book& other) {
-        autor = new char[strlen(other.autor) + 1];
-        strcpy_s(autor, strlen(other.autor) + 1, other.autor);
-
-        name = new char[strlen(other.name) + 1];
-        strcpy_s(name, strlen(other.name) + 1, other.name);
-
-        center = new char[strlen(other.center) + 1];
-        strcpy_s(center, strlen(other.center) + 1, other.center);
-
-        year = other.year;
-        pages = other.pages;
+    String(String&& other) noexcept {
+        mystr = other.mystr;
+        other.mystr = nullptr;
     }
 
-    ~Book() {
-        delete[] autor;
-        delete[] name;
-        delete[] center;
+    String(const String& other) {
+        if (other.mystr) {
+            mystr = new char[strlen(other.mystr) + 1];
+            strcpy_s(mystr, strlen(other.mystr) + 1, other.mystr);
+        }
+        else {
+            mystr = nullptr;
+        }
     }
 
-    void GetInfo() const {
-        cout << (const char*)u8"Ім'я: " << name << "\n";
-        cout << (const char*)u8"Автор: " << autor << "\n";
-        cout << (const char*)u8"Видавництво: " << center << "\n";
-        cout << (const char*)u8"Рік: " << year << "\n";
-        cout << (const char*)u8"Сторінок: " << pages << "\n\n";
+    String& operator=(const String& other) {
+        if (this != &other) {
+            delete[] mystr;
+            if (other.mystr) {
+                mystr = new char[strlen(other.mystr) + 1];
+                strcpy_s(mystr, strlen(other.mystr) + 1, other.mystr);
+            }
+            else {
+                mystr = nullptr;
+            }
+        }
+        return *this;
     }
 
-    const char* GetAutor() const { return autor; }
-    const char* GetCenter() const { return center; }
-    int GetYear() const { return year; }
+    String& operator=(String&& other) noexcept {
+        if (this != &other) {
+            delete[] mystr;
+
+            mystr = other.mystr;
+            other.mystr = nullptr;
+        }
+        return *this;
+    }
+
+
+    String operator+(const String& other) const {
+        int len1 = mystr ? strlen(mystr) : 0;
+        int len2 = other.mystr ? strlen(other.mystr) : 0;
+
+        char* newstr = new char[len1 + len2 + 1];
+
+        if (mystr)
+            strcpy_s(newstr, len1 + len2 + 1, mystr);
+        else
+            newstr[0] = '\0';
+
+        if (other.mystr)
+            strcat_s(newstr, len1 + len2 + 1, other.mystr);
+
+        String result(newstr);
+        delete[] newstr;
+        return result;
+    }
+
+    char& operator[](int value) {
+        return mystr[value];
+    }
+
+    void SetString(const char* str) {
+        delete[] mystr;
+        if (str) {
+            mystr = new char[strlen(str) + 1];
+            strcpy_s(mystr, strlen(str) + 1, str);
+        }
+        else {
+            mystr = nullptr;
+        }
+    }
+
+    int StringLength() const {
+        return mystr ? strlen(mystr) : 0;
+    }
+
+    const char* PrintStr() const {
+        return mystr ? mystr : "";
+    }
+
+    friend ostream& operator<<(ostream& os, const String& str) {
+        os << (str.mystr ? str.mystr : "");
+        return os;
+    }
+
+    ~String() {
+        delete[] mystr;
+    }
 };
 
-void PrintBooksByAuthor(Book books[], int size, const char* author) {
-    cout << (const char*)u8"\nКниги автора \"" << author << "\":\n";
-    for (int i = 0; i < size; ++i)
-        if (strcmp(books[i].GetAutor(), author) == 0)
-            books[i].GetInfo();
-}
-
-void PrintBooksByCenter(Book books[], int size, const char* center) {
-    cout << (const char*)u8"\nКниги видавництва \"" << center << "\":\n";
-    for (int i = 0; i < size; ++i)
-        if (strcmp(books[i].GetCenter(), center) == 0)
-            books[i].GetInfo();
-}
-
-void PrintBooksAfterYear(Book books[], int size, int year) {
-    cout << (const char*)u8"\nКниги, видані після " << year << " року:\n";
-    for (int i = 0; i < size; ++i)
-        if (books[i].GetYear() > year)
-            books[i].GetInfo();
-}
-
 int main() {
-    SetConsoleOutputCP(65001);
-    SetConsoleCP(65001);
+    String s1, s2;
+    s1.SetString("Hello, world!");
+    s2.SetString("Lol, world!");
+    String s3;
+    s3 = s2;
 
-    const int size = 3;
-    Book books[size] = {
-        Book((const char*)u8"Кобилянська", (const char*)u8"Царівна", (const char*)u8"Літопис", 1895, 240),
-        Book((const char*)u8"Франко", (const char*)u8"Захар Беркут", (const char*)u8"Львівська друкарня", 1883, 280),
-        Book((const char*)u8"Кобилянська", (const char*)u8"В неділю рано зілля копала", (const char*)u8"Літопис", 1909, 190)
-    };
+    cout << "s1: " << s1 << endl;
+    cout << "s2: " << s2 << endl;
+    cout << "s3: " << s3 << endl;
 
-    PrintBooksByAuthor(books, size, (const char*)u8"Кобилянська");
-    PrintBooksByCenter(books, size, (const char*)u8"Літопис");
-    PrintBooksAfterYear(books, size, 1900);
+    cout << s1[1] << endl;
 
-    return 0;
+    cout << "Length of s2: " << s2.StringLength() << endl;
+    cout << "s1 + s2: " << s1 + s2 << endl;
 }
+
