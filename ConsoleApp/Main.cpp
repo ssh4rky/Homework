@@ -81,6 +81,21 @@ public:
         return mystr[value];
     }
 
+    bool operator==(const String& other) const {
+        if (this->mystr == nullptr && other.mystr == nullptr) {
+            return true;
+        }
+        if (this->mystr == nullptr || other.mystr == nullptr) {
+            return false;
+        }
+        return strcmp(this->mystr, other.mystr);
+    }
+
+    bool operator!=(const String& other) const {
+        return !(this->mystr == other.mystr);
+    }
+
+
     void SetString(const char* str) {
         delete[] mystr;
         if (str) {
@@ -100,6 +115,49 @@ public:
         return mystr ? mystr : "";
     }
 
+    void Erase(int index, int amount) {
+        if (!mystr) {
+            cerr << "This string is empty" << endl;
+            return;
+        }
+
+        int len = StringLength();
+
+        if (index < 0 || index >= len) {
+            throw out_of_range("Index out of range");
+        }
+
+        if (amount <= 0) return;
+
+        if (index + amount > len) {
+            amount = len - index;
+        }
+
+        for (int i = index; i <= len - amount; i++) {
+            mystr[i] = mystr[i + amount];
+        }
+    }
+
+    int Find(char substr, int start) const {
+        if (!mystr) {
+            cerr << "This string is empty, nothing to find" << endl;
+            return -1;
+        }
+
+        int len = StringLength();
+
+        if (start < 0 || start >= len) {
+            return -1;
+        }
+        for (int i = start; i < len; i++) {
+            if (mystr[i] == substr) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
     friend ostream& operator<<(ostream& os, const String& str) {
         os << (str.mystr ? str.mystr : "");
         return os;
@@ -116,11 +174,13 @@ int main() {
     s2.SetString("Lol, world!");
     String s3;
     s3 = s2;
+    s2.Erase(1, 3);
 
     cout << "s1: " << s1 << endl;
     cout << "s2: " << s2 << endl;
     cout << "s3: " << s3 << endl;
 
+    cout << s1.Find('l', 1);
     cout << s1[1] << endl;
 
     cout << "Length of s2: " << s2.StringLength() << endl;
