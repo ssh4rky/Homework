@@ -81,6 +81,10 @@ public:
         return mystr[value];
     }
 
+    const char& operator[](int value) const {
+        return mystr[value];
+    }
+
     bool operator==(const String& other) const {
         if (this->mystr == nullptr && other.mystr == nullptr) {
             return true;
@@ -138,21 +142,23 @@ public:
         }
     }
 
-    int Find(char substr, int start) const {
-        if (!mystr) {
-            cerr << "This string is empty, nothing to find" << endl;
-            return -1;
-        }
+    int Find(const String& substr) const {
+        if (!mystr || !substr.mystr) return -1;
 
         int len = StringLength();
+        int sublen = substr.StringLength();
 
-        if (start < 0 || start >= len) {
-            return -1;
-        }
-        for (int i = start; i < len; i++) {
-            if (mystr[i] == substr) {
-                return i;
+        if (sublen == 0) return 0;
+
+        for (int i = 0; i <= len - sublen; i++) {
+            bool match = true;
+            for (int j = 0; j < sublen; j++) {
+                if (mystr[i + j] != substr.mystr[j]) {
+                    match = false;
+                    break;
+                }
             }
+            if (match) return i;
         }
 
         return -1;
@@ -169,18 +175,16 @@ public:
 };
 
 int main() {
-    String s1, s2;
+    String s1, s2, s3;
     s1.SetString("Hello, world!");
     s2.SetString("Lol, world!");
-    String s3;
-    s3 = s2;
-    s2.Erase(1, 3);
+    s3.SetString("world!");
 
     cout << "s1: " << s1 << endl;
     cout << "s2: " << s2 << endl;
     cout << "s3: " << s3 << endl;
 
-    cout << s1.Find('l', 1);
+    cout << s2.Find(s3) << endl;
     cout << s1[1] << endl;
 
     cout << "Length of s2: " << s2.StringLength() << endl;
