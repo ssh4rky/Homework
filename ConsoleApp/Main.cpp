@@ -2,6 +2,109 @@
 
 using namespace std;
 
+template <typename T>
+struct Node {
+    T value;
+    Node<T>* previous;
+    Node<T>* next;
+    Node(T val) : value(val), previous(nullptr), next(nullptr) {}
+};
+
+template<typename T>
+class LinkedList {
+private:
+    Node<T>* head;
+    Node<T>* tail;
+    int size;
+public:
+    LinkedList() : head(nullptr), tail(nullptr), size(0) {}
+    ~LinkedList();
+
+    void Append(T val);
+    void InsertAt(int index, T val);
+    void PrintForward() const;
+    void PrintBackward() const;
+    T RemoveAt(int index);
+
+    int GetSize() const { return size; }
+    Node<T>* GetHead() const { return head; }
+    Node<T>* GetTail() const { return tail; }
+};
+
+template <typename T>
+void LinkedList<T>::Append(T val) {
+    Node<T>* newNode = new Node<T>(val);
+    if (tail == nullptr) {
+        head = tail = newNode;
+    }
+    else {
+        tail->next = newNode;
+        newNode->previous = tail;
+        tail = newNode;
+    }
+    size++;
+}
+
+template<typename T>
+LinkedList<T>::~LinkedList() {
+    Node<T>* current = head;
+    while (current) {
+        Node<T>* nextNode = current->next;
+        delete current;
+        current = nextNode;
+    }
+}
+
+template<typename T>
+T LinkedList<T>::RemoveAt(int index) {
+    if (index < 0 || index >= size) {
+        throw out_of_range("Index out of Bounds");
+    }
+
+    Node<T>* toDelete = head;
+
+    if (index == 0) {
+        head = head->next;
+        if (head) head->previous = nullptr;
+        if (toDelete == tail) tail = nullptr;
+    }
+    else {
+        for (int i = 0; i < index; i++) {
+            toDelete = toDelete->next;
+        }
+        Node<T>* prevNode = toDelete->previous;
+        Node<T>* nextNode = toDelete->next;
+
+        if (prevNode) prevNode->next = nextNode;
+        if (nextNode) nextNode->previous = prevNode;
+        if (toDelete == tail) tail = prevNode;
+    }
+    size--;
+    return toDelete->value;
+    delete toDelete;
+}
+
+template <typename T>
+void LinkedList<T>::PrintForward() const {
+    Node<T>* current = head;
+    while (current != nullptr) {
+        cout << current->value << " ";
+        current = current->next;
+    }
+    cout << endl;
+}
+
+template <typename T>
+void LinkedList<T>::PrintBackward() const {
+    Node<T>* current = tail;
+    while (current != nullptr) {
+        cout << current->value << " ";
+        current = current->previous;
+    }
+    cout << endl;
+}
+
+
 class String {
 private:
     char* mystr;
@@ -189,5 +292,22 @@ int main() {
 
     cout << "Length of s2: " << s2.StringLength() << endl;
     cout << "s1 + s2: " << s1 + s2 << endl;
+
+    LinkedList<int> list;
+    list.Append(10);
+    list.Append(12);
+    list.Append(14);
+    list.Append(16);
+
+    cout << "Forward: ";
+    list.PrintForward();
+
+    cout << "Backward: ";
+    list.PrintBackward();
+
+    list.RemoveAt(2);
+
+    cout << "After removal: ";
+    list.PrintForward();
 }
 
