@@ -2,6 +2,7 @@
 
 using namespace std;
 
+//Two-sided LinkedList
 template <typename T>
 struct Node {
     T value;
@@ -104,7 +105,7 @@ void LinkedList<T>::PrintBackward() const {
     cout << endl;
 }
 
-
+//String
 class String {
 private:
     char* mystr;
@@ -267,6 +268,86 @@ public:
         return -1;
     }
 
+    void replace(int index, int count, const String& replacement) {
+        if (!mystr) return;
+
+        int len = StringLength();
+        if (index < 0 || index > len) {
+            throw out_of_range("Index out of range");
+        }
+
+        if (count < 0) count = 0;
+        if (index + count > len) {
+            count = len - index;
+        }
+
+        int replLen = replacement.StringLength();
+        int newLen = len - count + replLen;
+
+        char* newStr = new char[newLen + 1];
+
+        strncpy_s(newStr, newLen + 1, mystr, index);
+        newStr[index] = '\0';
+
+        strcat_s(newStr, newLen + 1, replacement.mystr);
+
+        strcat_s(newStr, newLen + 1, mystr + index + count);
+
+        delete[] mystr;
+        mystr = newStr;
+    }
+
+    String substr(int start, int end) const {
+        if (!mystr) return String("");
+        int len = StringLength();
+
+        if (start < 0 || start >= len || end < start) {
+            throw out_of_range("Invalid substring range");
+        }
+        if (end >= len) end = len - 1;
+
+        int subLen = end - start + 1;
+        char* buffer = new char[subLen + 1];
+        strncpy_s(buffer, subLen + 1, mystr + start, subLen);
+        buffer[subLen] = '\0';
+
+        String result(buffer);
+        delete[] buffer;
+        return result;
+    }
+
+    bool empty() const {
+        return !mystr || mystr[0] == '\0';
+    }
+
+    void insert(int index, const String& toInsert) {
+        if (!toInsert.mystr) return;
+        if (!mystr) {
+            SetString(toInsert.mystr);
+            return;
+        }
+
+        int len = StringLength();
+        if (index < 0 || index > len) {
+            throw out_of_range("Index out of range");
+        }
+
+        int insLen = toInsert.StringLength();
+        int newLen = len + insLen;
+
+        char* newStr = new char[newLen + 1];
+
+        strncpy_s(newStr, newLen + 1, mystr, index);
+        newStr[index] = '\0';
+
+        strcat_s(newStr, newLen + 1, toInsert.mystr);
+
+        strcat_s(newStr, newLen + 1, mystr + index);
+
+        delete[] mystr;
+        mystr = newStr;
+    }
+
     friend ostream& operator<<(ostream& os, const String& str) {
         os << (str.mystr ? str.mystr : "");
         return os;
@@ -278,21 +359,23 @@ public:
 };
 
 int main() {
-    String s1, s2, s3;
-    s1.SetString("Hello, world!");
-    s2.SetString("Lol, world!");
-    s3.SetString("world!");
+    //String
+    String s("Hello World!");
 
-    cout << "s1: " << s1 << endl;
-    cout << "s2: " << s2 << endl;
-    cout << "s3: " << s3 << endl;
+    cout << "Original: " << s << endl;
 
-    cout << s2.Find(s3) << endl;
-    cout << s1[1] << endl;
+    s.replace(6, 5, String("C++"));
+    cout << "After replace: " << s << endl;
 
-    cout << "Length of s2: " << s2.StringLength() << endl;
-    cout << "s1 + s2: " << s1 + s2 << endl;
+    String sub = s.substr(0, 4);
+    cout << "Substring (0-4): " << sub << endl;
 
+    cout << "Empty? " << (s.empty() ? " Yes" : " No") << endl;
+
+    s.insert(6, String("amazing "));
+    cout << "After insert: " << s << endl;
+
+    //Two-sided LinkedList
     LinkedList<int> list;
     list.Append(10);
     list.Append(12);
