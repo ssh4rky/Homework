@@ -2,93 +2,173 @@
 
 using namespace std;
 
-//Two-sided LinkedList
 template <typename T>
 struct Node {
     T value;
-    Node<T>* previous;
+    Node<T>* prev;
     Node<T>* next;
-    Node(T val) : value(val), previous(nullptr), next(nullptr) {}
-};
-
-template<typename T>
-class LinkedList {
-private:
-    Node<T>* head;
-    Node<T>* tail;
-    int size;
-public:
-    LinkedList() : head(nullptr), tail(nullptr), size(0) {}
-    ~LinkedList();
-
-    void Append(T val);
-    void InsertAt(int index, T val);
-    void PrintForward() const;
-    void PrintBackward() const;
-    T RemoveAt(int index);
-
-    int GetSize() const { return size; }
-    Node<T>* GetHead() const { return head; }
-    Node<T>* GetTail() const { return tail; }
+    Node(T val) : value(val), prev(nullptr), next(nullptr) {}
 };
 
 template <typename T>
-void LinkedList<T>::Append(T val) {
-    Node<T>* newNode = new Node<T>(val);
-    if (tail == nullptr) {
+class DoublyLinkedList {
+private:
+    Node<T>* head;
+    Node<T>* tail;
+    int count;
+
+public:
+    DoublyLinkedList() : head(nullptr), tail(nullptr), count(0) {}
+    ~DoublyLinkedList();
+
+    void push_front(T value);
+
+    void push_back(T value);
+
+    void pop_front();
+
+    void pop_back();
+
+    void insert(int position, T value);
+
+    void erase(int position);
+
+    Node<T>* find(T value);
+
+    void clear();
+
+    int size() const { return count; }
+
+    bool empty() const { return count == 0; }
+
+    void print_forward() const;
+
+    void print_backward() const;
+};
+
+// Realizitaion
+template <typename T>
+DoublyLinkedList<T>::~DoublyLinkedList() {
+    clear();
+}
+
+template <typename T>
+void DoublyLinkedList<T>::push_front(T value) {
+    Node<T>* newNode = new Node<T>(value);
+    if (!head) {
+        head = tail = newNode;
+    }
+    else {
+        newNode->next = head;
+        head->prev = newNode;
+        head = newNode;
+    }
+    count++;
+}
+
+template <typename T>
+void DoublyLinkedList<T>::push_back(T value) {
+    Node<T>* newNode = new Node<T>(value);
+    if (!tail) {
         head = tail = newNode;
     }
     else {
         tail->next = newNode;
-        newNode->previous = tail;
+        newNode->prev = tail;
         tail = newNode;
     }
-    size++;
-}
-
-template<typename T>
-LinkedList<T>::~LinkedList() {
-    Node<T>* current = head;
-    while (current) {
-        Node<T>* nextNode = current->next;
-        delete current;
-        current = nextNode;
-    }
-}
-
-template<typename T>
-T LinkedList<T>::RemoveAt(int index) {
-    if (index < 0 || index >= size) {
-        throw out_of_range("Index out of Bounds");
-    }
-
-    Node<T>* toDelete = head;
-
-    if (index == 0) {
-        head = head->next;
-        if (head) head->previous = nullptr;
-        if (toDelete == tail) tail = nullptr;
-    }
-    else {
-        for (int i = 0; i < index; i++) {
-            toDelete = toDelete->next;
-        }
-        Node<T>* prevNode = toDelete->previous;
-        Node<T>* nextNode = toDelete->next;
-
-        if (prevNode) prevNode->next = nextNode;
-        if (nextNode) nextNode->previous = prevNode;
-        if (toDelete == tail) tail = prevNode;
-    }
-    size--;
-    return toDelete->value;
-    delete toDelete;
+    count++;
 }
 
 template <typename T>
-void LinkedList<T>::PrintForward() const {
+void DoublyLinkedList<T>::pop_front() {
+    if (!head) return;
+    Node<T>* temp = head;
+    head = head->next;
+    if (head) head->prev = nullptr;
+    else tail = nullptr;
+    delete temp;
+    count--;
+}
+
+template <typename T>
+void DoublyLinkedList<T>::pop_back() {
+    if (!tail) return;
+    Node<T>* temp = tail;
+    tail = tail->prev;
+    if (tail) tail->next = nullptr;
+    else head = nullptr;
+    delete temp;
+    count--;
+}
+
+template <typename T>
+void DoublyLinkedList<T>::insert(int position, T value) {
+    if (position < 0 || position > count) throw out_of_range("Invalid position");
+
+    if (position == 0) {
+        push_front(value);
+        return;
+    }
+    if (position == count) {
+        push_back(value);
+        return;
+    }
+
+    Node<T>* newNode = new Node<T>(value);
     Node<T>* current = head;
-    while (current != nullptr) {
+    for (int i = 0; i < position; i++) current = current->next;
+
+    newNode->next = current;
+    newNode->prev = current->prev;
+    current->prev->next = newNode;
+    current->prev = newNode;
+    count++;
+}
+
+template <typename T>
+void DoublyLinkedList<T>::erase(int position) {
+    if (position < 0 || position >= count) throw out_of_range("Invalid position");
+
+    if (position == 0) {
+        pop_front();
+        return;
+    }
+    if (position == count - 1) {
+        pop_back();
+        return;
+    }
+
+    Node<T>* current = head;
+    for (int i = 0; i < position; i++) current = current->next;
+
+    current->prev->next = current->next;
+    current->next->prev = current->prev;
+    delete current;
+    count--;
+}
+
+template <typename T>
+Node<T>* DoublyLinkedList<T>::find(T value) {
+    Node<T>* current = head;
+    while (current) {
+        if (current->value == value) return current;
+        current = current->next;
+    }
+    return nullptr;
+}
+
+template <typename T>
+void DoublyLinkedList<T>::clear() {
+    while (head) {
+        pop_front();
+    }
+}
+
+template <typename T>
+void DoublyLinkedList<T>::print_forward() const {
+    Node<T>* current = head;
+    while (current) {
         cout << current->value << " ";
         current = current->next;
     }
@@ -96,11 +176,11 @@ void LinkedList<T>::PrintForward() const {
 }
 
 template <typename T>
-void LinkedList<T>::PrintBackward() const {
+void DoublyLinkedList<T>::print_backward() const {
     Node<T>* current = tail;
-    while (current != nullptr) {
+    while (current) {
         cout << current->value << " ";
-        current = current->previous;
+        current = current->prev;
     }
     cout << endl;
 }
@@ -376,21 +456,22 @@ int main() {
     cout << "After insert: " << s << endl;
 
     //Two-sided LinkedList
-    LinkedList<int> list;
-    list.Append(10);
-    list.Append(12);
-    list.Append(14);
-    list.Append(16);
+    DoublyLinkedList<int> list;
+    list.push_back(10);
+    list.push_back(20);
+    list.push_front(5);
+    list.insert(1, 15);
+    list.print_forward();
+    list.print_backward();
 
-    cout << "Forward: ";
-    list.PrintForward();
+    list.erase(2);
+    list.print_forward();
 
-    cout << "Backward: ";
-    list.PrintBackward();
+    cout << "Find 15: " << (list.find(15) ? "Found" : "Not Found") << endl;
+    cout << "Size: " << list.size() << endl;
+    cout << "Empty: " << (list.empty() ? "Yes" : "No") << endl;
 
-    list.RemoveAt(2);
-
-    cout << "After removal: ";
-    list.PrintForward();
+    list.clear();
+    cout << "Empty after clear: " << (list.empty() ? "Yes" : "No") << endl;
 }
 
