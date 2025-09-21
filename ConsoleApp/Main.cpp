@@ -438,6 +438,184 @@ public:
     }
 };
 
+template<typename T>
+class LinkedList {
+private:
+    Node<T>* head;
+    Node<T>* tail;
+    int size;
+public:
+    LinkedList() : head(nullptr), tail(nullptr), size(0) {}
+    ~LinkedList();
+
+    void Append(T val);
+    void Find(T val) const;
+    void InsertAt(int index, T val);
+    void PrintList();
+
+    void forEach(void(*func)(T&));
+    T RemoveAt(int index);
+
+    int GetSize() const {
+        return size;
+    }
+    Node<T>* GetHead() const {
+        return head;
+    }
+    Node<T>* GetTail() const {
+        return tail;
+    }
+};
+
+template <typename T>
+void LinkedList<T>::Append(T val) {
+    Node<T>* newNode = new Node<T>(val);
+    if (tail == nullptr) {
+        head = tail = newNode;
+    }
+    else {
+        tail->next = newNode;
+        tail = newNode;
+    }
+    size++;
+}
+
+template<typename T>
+LinkedList<T>::~LinkedList() {
+    Node<T>* current = head;
+    while (current) {
+        Node<T>* nextNode = current->next;
+        delete[] current;
+        current = nextNode;
+    }
+}
+
+template<typename T>
+T LinkedList<T>::RemoveAt(int index) {
+    if (index < 0 || index > size) {
+        throw out_of_range("Index out of Bounds");
+    }
+    Node<T>* toDelete = nullptr;
+    if (index == 0) {
+        Node<T>* next = head->next;
+        toDelete = head;
+        head = next;
+    }
+    else {
+        Node<T>* current = head;
+        for (int i = 0; i < index - 1; i++) {
+            current = current->next;
+        }
+        toDelete = current->next;
+        current->next = toDelete->next;
+        if (toDelete == tail) {
+            tail = current;
+        }
+    }
+    T val = toDelete->value;
+    delete toDelete;
+    size--;
+    return val;
+}
+
+template <typename T>
+void LinkedList<T>::PrintList() {
+    Node<T>* current = GetHead();
+    while (current != nullptr) {
+        Node<int>* nextNode = current->next;
+        cout << current->value << " ";
+        current = nextNode;
+    }
+    cout << endl;
+}
+
+template <typename T>
+void LinkedList<T>::forEach(void(*func)(T&)) {
+    Node<T>* current = head;
+    while (current) {
+        func(current->value);
+        current = current->next;
+    }
+}
+
+template<typename T>
+class Stack {
+private:
+    LinkedList<T> data;
+public:
+    Stack() {}
+    ~Stack() {}
+
+    bool isEmpty() const {
+        return data.GetSize() == 0;
+    }
+    int size() const {
+        return data.GetSize();
+    }
+    void clear() {
+        while (!isEmpty()) {
+            pop();
+        }
+    }
+
+    void push(const T& value) {
+        data.Append(value);
+    }
+
+    T pop() {
+        if (isEmpty()) {
+            throw out_of_range("Stack is empty");
+        }
+        return data.RemoveAt(data.GetSize() - 1);
+    }
+
+    T peek() const {
+        if (isEmpty()) {
+            throw out_of_range("Stack is empty");
+        }
+        return data.GetTail()->value;
+    }
+};
+
+template<typename T>
+class Queue {
+private:
+    LinkedList<T> data;
+public:
+    Queue() {}
+    ~Queue() {}
+
+    bool isEmpty() const {
+        return data.GetSize() == 0;
+    }
+    int size() const {
+        return data.GetSize();
+    }
+    void clear() {
+        while (!isEmpty()) {
+            dequeue();
+        }
+    }
+
+    void enqueue(const T& value) {
+        data.Append(value);
+    }
+
+    T dequeue() {
+        if (isEmpty()) {
+            throw out_of_range("Queue is empty");
+        }
+        return data.RemoveAt(0);
+    }
+
+    T peek() const {
+        if (isEmpty()) {
+            throw out_of_range("Queue is empty");
+        }
+        return data.GetHead()->value;
+    }
+};
+
 int main() {
     //String
     String s("Hello World!");
@@ -473,5 +651,36 @@ int main() {
 
     list.clear();
     cout << "Empty after clear: " << (list.empty() ? "Yes" : "No") << endl;
+
+    // Stack
+    Stack<int> st;
+    st.push(10);
+    st.push(20);
+    st.push(30);
+
+    cout << "Top: " << st.peek() << endl;
+    cout << "Pop: " << st.pop() << endl;
+    cout << "Top after pop: " << st.peek() << endl;
+    st.clear();
+    cout << "Clearing stack..." << endl;
+    cout << "Is the stack empty after clear?" << (st.isEmpty() ? " Yes" : " No") << endl;
+
+    //Queue
+    Queue<int> q;
+
+    q.enqueue(10);
+    q.enqueue(20);
+    q.enqueue(30);
+
+    cout << "Is queue empty? " << (q.isEmpty() ? "Yes" : "No") << endl;
+
+    cout << "Enqueue 42, 99...\n";
+    q.enqueue(42);
+    q.enqueue(99);
+    cout << "Front (peek): " << q.peek() << endl;
+
+    q.clear();
+    cout << "Clearing queue...\n";
+    cout << "Is queue empty after clear? " << (q.isEmpty() ? "Yes" : "No") << endl;
 }
 
