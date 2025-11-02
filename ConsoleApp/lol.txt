@@ -1,0 +1,4 @@
+CATEGORY|1|Physics
+TEST|1|Physics
+QUESTION|1|Principle solid:
+CHOICE|1|0|1

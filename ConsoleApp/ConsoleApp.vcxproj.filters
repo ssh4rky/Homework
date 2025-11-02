@@ -31,5 +31,8 @@
     <None Include="users.db">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="tests.db">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
