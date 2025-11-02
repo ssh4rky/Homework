@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Constructor destructor.cpp">
+    <ClCompile Include="Test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sqlite3.c">
